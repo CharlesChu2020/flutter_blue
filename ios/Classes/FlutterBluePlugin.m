@@ -50,7 +50,6 @@ typedef NS_ENUM(NSUInteger, LogLevel) {
   FlutterEventChannel* stateChannel = [FlutterEventChannel eventChannelWithName:NAMESPACE @"/state" binaryMessenger:[registrar messenger]];
   FlutterBluePlugin* instance = [[FlutterBluePlugin alloc] init];
   instance.channel = channel;
-  instance.centralManager = [[CBCentralManager alloc] initWithDelegate:instance queue:nil];
   instance.scannedPeripherals = [NSMutableDictionary new];
   instance.connectedPeripherals = [NSMutableDictionary new];
   instance.disconnectedPeripherals = [NSMutableArray new];
@@ -68,6 +67,9 @@ typedef NS_ENUM(NSUInteger, LogLevel) {
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if (self.centralManager == nil) {
+    self.centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+  }
   if ([@"setLogLevel" isEqualToString:call.method]) {
     NSNumber *logLevelIndex = [call arguments];
     _logLevel = (LogLevel)[logLevelIndex integerValue];
